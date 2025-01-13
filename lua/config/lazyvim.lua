@@ -47,6 +47,8 @@ M.setup = function()
 			branch = "0.1.x",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
+				-- plenary.nvim 的功能可以分为
+				-- 异步编程支持：文件操作：测试框架：实用工具：进程管理：事件和任务管理：
 				{ -- If encountering errors, see telescope-fzf-native README for installation instructions
 					"nvim-telescope/telescope-fzf-native.nvim",
 
@@ -61,9 +63,6 @@ M.setup = function()
 					end,
 				},
 				{ "nvim-telescope/telescope-ui-select.nvim" },
-
-				-- Useful for getting pretty icons, but requires a Nerd Font.
-				{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
 			},
 			--  config need a function variable
 			config = require("plugins.telescope"),
@@ -102,6 +101,12 @@ M.setup = function()
 				"hrsh7th/cmp-nvim-lsp",
 			},
 			config = require("plugins.lsp"),
+		},
+		{
+			"stevearc/aerial.nvim",
+			dependencies = { "nvim-telescope/telescope.nvim" },
+			opts = {},
+			keys = { { "<leader>as", "<cmd>Telescope aerial<CR>", desc = "Open Aerial Symbol view" } },
 		},
 
 		{ -- Autoformat
@@ -263,24 +268,52 @@ M.setup = function()
 			end,
 		},
 
-		{ -- You can easily change to a different colorscheme.
-			-- Change the name of the colorscheme plugin below, and then
-			-- change the command in the config to whatever the name of that colorscheme is.
-			--
-			-- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+		-- colorscheme
+		{
 			"folke/tokyonight.nvim",
-			priority = 1000, -- Make sure to load this before all the other start plugins.
-			init = function()
-				-- Load the colorscheme here.
-				-- Like many other themes, this one has different styles, and you could load
-				-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-				vim.cmd.colorscheme("tokyonight-night")
-
-				-- You can configure highlights by doing something like:
-				vim.cmd.hi("Comment gui=none")
+		},
+		{
+			"ellisonleao/gruvbox.nvim",
+			dependencies = { "rktjmp/lush.nvim" },
+			lazy = false,
+			priority = 1000,
+			config = function()
+				vim.cmd("colorscheme gruvbox")
 			end,
 		},
 
+		-- Useful for getting pretty icons, but requires a Nerd Font.
+		{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+
+		-- buffline
+		{
+			"nvim-lualine/lualine.nvim",
+			event = "VeryLazy",
+			dependencies = { "nvim-tree/nvim-web-devicons" },
+			opts = {
+				theme = "gruvbox",
+				section_separators = " ",
+				component_separators = " ",
+			},
+		},
+
+		-- Highly experimental plugin that completely replaces the UI for messages,
+		-- cmdline and the popupmenu.
+		{
+			"folke/noice.nvim",
+			event = "VeryLazy",
+			opts = {
+				-- add any options here
+			},
+			dependencies = {
+				-- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+				"MunifTanjim/nui.nvim",
+				-- OPTIONAL:
+				--   `nvim-notify` is only needed, if you want to use the notification view.
+				--   If not available, we use `mini` as the fallback
+				"rcarriga/nvim-notify",
+			},
+		},
 		-- Highlight todo, notes, etc in comments
 		{
 			"folke/todo-comments.nvim",
@@ -335,6 +368,8 @@ M.setup = function()
 				ensure_installed = {
 					"bash",
 					"c",
+					"python",
+					"rust",
 					"diff",
 					"html",
 					"lua",
@@ -390,26 +425,6 @@ M.setup = function()
 		-- Or use telescope!
 		-- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
 		-- you can continue same window with `<space>sr` which resumes last telescope search
-	}, {
-		ui = {
-			-- If you are using a Nerd Font: set icons to an empty table which will use the
-			-- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-			icons = vim.g.have_nerd_font and {} or {
-				cmd = "⌘",
-				config = "🛠",
-				event = "📅",
-				ft = "📂",
-				init = "⚙",
-				keys = "🗝",
-				plugin = "🔌",
-				runtime = "💻",
-				require = "🌙",
-				source = "📄",
-				start = "🚀",
-				task = "📌",
-				lazy = "💤 ",
-			},
-		},
 	})
 end
 
