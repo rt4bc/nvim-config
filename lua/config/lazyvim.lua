@@ -282,6 +282,14 @@ M.setup = function()
 			end,
 		},
 
+		{
+			"goolord/alpha-nvim",
+			config = function()
+				require("alpha").setup(require("alpha.themes.startify").config)
+				vim.keymap.set("n", "<leader>a", ":Alpha<CR>", { noremap = true, silent = true })
+			end,
+		},
+
 		-- Useful for getting pretty icons, but requires a Nerd Font.
 		{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
 
