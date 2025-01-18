@@ -285,7 +285,11 @@ M.setup = function()
 		{
 			"goolord/alpha-nvim",
 			config = function()
-				require("alpha").setup(require("alpha.themes.startify").config)
+				local alpha = require("alpha")
+				local startify = require("alpha.themes.startify")
+				-- startify.section.header.val = [[
+				-- ]]
+				alpha.setup(startify.config)
 				vim.keymap.set("n", "<leader>a", ":Alpha<CR>", { noremap = true, silent = true })
 			end,
 		},
