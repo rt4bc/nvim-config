@@ -102,11 +102,29 @@ M.setup = function()
 			},
 			config = require("plugins.lsp"),
 		},
+		-- {
+		-- 	"ray-x/lsp_signature.nvim",
+		-- 	event = "LspAttach",
+		-- 	config = function()
+		-- 		require("lsp_signature").on_attach({
+		-- 			bind = true,
+		-- 			handler_opts = { border = "rounded" },
+		-- 			floating_window = true,
+		-- 			hint_enable = true,
+		-- 			hint_prefix = "🐼 ",
+		-- 			toggle_key = "<C-k>",
+		-- 			select_signature_key = "<C-n>",
+		-- 			vim.keymap.set({ "n", "i" }, "<C-k>", function()
+		-- 				require("lsp_signature").toggle_float_win()
+		-- 			end, { silent = true, noremap = true, desc = "Toggle LSP Signature" }),
+		-- 		})
+		-- 	end,
+		-- },
 		{
 			"stevearc/aerial.nvim",
 			dependencies = { "nvim-telescope/telescope.nvim" },
 			opts = {},
-			-- keys = { { "<leader>as", "<cmd>Telescope aerial<CR>", desc = "Open Aerial Symbol view" } },
+			-- keys = { { "<leader>ta", "<cmd>Telescope aerial<CR>", desc = "Open Aerial Symbol view" } },
 		},
 
 		{ -- Autoformat
