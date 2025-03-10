@@ -157,6 +157,7 @@ M.config = function()
 		verible = {},
 		cmake = {},
 		autotools_ls = {},
+		taplo = {},
 		-- svls = {},
 		-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 		--

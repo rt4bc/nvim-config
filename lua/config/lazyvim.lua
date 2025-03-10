@@ -285,6 +285,11 @@ M.setup = function()
 				})
 			end,
 		},
+		{
+			"windwp/nvim-autopairs",
+			event = "InsertEnter",
+			config = true,
+		},
 
 		-- colorscheme
 		{
