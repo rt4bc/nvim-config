@@ -125,73 +125,6 @@ M.setup = function()
 			end,
 		},
 
-		-- cmdline and the popupmenu.
-		{
-			"folke/noice.nvim",
-			opts = {
-				-- 启用命令行 UI，但只保留命令输入提示
-				cmdline = {
-					enabled = true, -- 启用命令行 UI
-					view = "cmdline_popup", -- 使用弹出式命令行视图
-					opts = {
-						position = {
-							row = "50%",
-							col = "50%",
-						},
-						size = {
-							width = 60,
-							height = "auto",
-						},
-					},
-					format = {
-						-- 禁用其他命令类型的覆盖，只保留常规命令输入
-						cmdline = { pattern = "^:", icon = "", lang = "vim" },
-						search_down = { kind = "search", pattern = "^/", icon = " ", lang = "regex" },
-						search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
-						filter = false,
-						lua = false,
-						help = false,
-						input = false,
-					},
-				},
-
-				-- 配置消息显示
-				messages = {
-					enabled = false, -- 禁用消息 UI
-				},
-
-				-- 配置弹窗通知
-				notify = {
-					enabled = true, -- 启用通知
-				},
-
-				-- 配置 LSP 进度
-				lsp = {
-					progress = {
-						enabled = true, -- 保持 LSP 进度提示
-					},
-					hover = {
-						enabled = true, -- 保持 LSP 悬浮提示
-					},
-					signature = {
-						enabled = true, -- 保持函数签名提示
-					},
-					message = {
-						enabled = true, -- 保持 LSP 消息提示
-					},
-				},
-
-				-- 禁用所有预设视图
-				presets = {
-					bottom_search = false, -- 使用默认搜索
-					command_palette = false, -- 使用默认命令面板
-					long_message_to_split = false, -- 长消息不使用分割窗口
-					inc_rename = false, -- 使用默认重命名
-					lsp_doc_border = false, -- 不使用 LSP 文档边框
-				},
-			},
-		},
-
 		-- Highlight, edit, and navigate code
 		{
 			"nvim-treesitter/nvim-treesitter",
@@ -244,8 +177,8 @@ M.setup = function()
 		-- Fuzzy Finder
 		{
 			"nvim-telescope/telescope.nvim",
+			branch = "master",
 			event = "VimEnter",
-			branch = "0.1.x",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 				-- plenary.nvim 的功能可以分为
@@ -274,7 +207,7 @@ M.setup = function()
 			"stevearc/aerial.nvim",
 			dependencies = { "nvim-telescope/telescope.nvim" },
 			opts = {},
-			-- keys = { { "<leader>as", "<cmd>Telescope aerial<CR>", desc = "Open Aerial Symbol view" } },
+			keys = { { "<leader>sa", "<cmd>Telescope aerial<CR>", desc = "Open Aerial Symbol view" } },
 		},
 
 		-- MAIN LSP Plugins
@@ -283,19 +216,20 @@ M.setup = function()
 			dependencies = {
 				-- Automatically install LSPs and related tools to stdpath for Neovim
 				-- Mason must be loaded before its dependents so we need to set it up here.
-				-- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
+				-- NOTE: opts = {} is the same as calling require('mason').setup({})
 				{ "williamboman/mason.nvim", opts = {} },
 				"williamboman/mason-lspconfig.nvim",
 				"WhoIsSethDaniel/mason-tool-installer.nvim",
 
 				-- Useful status updates for LSP.
-				-- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+				-- NOTE: opts = {} is the same as calling require('fidget').setup({})
 				{ "j-hui/fidget.nvim", opts = {} },
 
 				-- Allows extra capabilities provided by nvim-cmp
 				"hrsh7th/cmp-nvim-lsp",
 			},
 			config = require("plugins.lsp"),
+			--require("lspconfig").pyright.setup({}),
 		},
 
 		-- LUA LSP Plugins, special for lua development under neovim
@@ -310,6 +244,58 @@ M.setup = function()
 					{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
 				},
 			},
+		},
+
+		-- Autocompletion
+		{
+			"hrsh7th/nvim-cmp",
+			event = "InsertEnter",
+			dependencies = {
+				{
+					"L3MON4D3/LuaSnip",
+					build = (function()
+						-- Build Step is needed for regex support in snippets.
+						-- This step is not supported in many windows environments.
+						-- Remove the below condition to re-enable on windows.
+						if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
+							return
+						end
+						return "make install_jsregexp"
+					end)(),
+				},
+				"saadparwaiz1/cmp_luasnip",
+				"hrsh7th/cmp-nvim-lsp",
+				"hrsh7th/cmp-path",
+			},
+
+			config = function()
+				local cmp = require("cmp")
+				local luasnip = require("luasnip")
+				luasnip.config.setup({})
+
+				cmp.setup({
+					snippet = {
+						expand = function(args)
+							luasnip.lsp_expand(args.body)
+						end,
+					},
+					mapping = cmp.mapping.preset.insert({
+						["<C-b>"] = cmp.mapping.scroll_docs(-4),
+						["<C-f>"] = cmp.mapping.scroll_docs(4),
+						["<C-Space>"] = cmp.mapping.complete(),
+						["<C-e>"] = cmp.mapping.abort(),
+						["<CR>"] = cmp.mapping.confirm({ select = true }),
+					}),
+					sources = cmp.config.sources({
+						{ name = "nvim_lsp" },
+						{ name = "luasnip" },
+					}, {
+						{ name = "buffer" },
+						{ name = "path" },
+					}),
+				})
+			end,
+
 		},
 
 		{ -- Autoformat
@@ -360,121 +346,6 @@ M.setup = function()
 			},
 		},
 
-		-- Autocompletion
-		{
-			"hrsh7th/nvim-cmp",
-			event = "InsertEnter",
-			dependencies = {
-				{
-					"L3MON4D3/LuaSnip",
-					build = (function()
-						-- Build Step is needed for regex support in snippets.
-						-- This step is not supported in many windows environments.
-						-- Remove the below condition to re-enable on windows.
-						if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-							return
-						end
-						return "make install_jsregexp"
-					end)(),
-					dependencies = {
-						-- `friendly-snippets` contains a variety of premade snippets.
-						--    See the README about individual language/framework/plugin snippets:
-						--    https://github.com/rafamadriz/friendly-snippets
-						-- {
-						--   'rafamadriz/friendly-snippets',
-						--   config = function()
-						--     require('luasnip.loaders.from_vscode').lazy_load()
-						--   end,
-						-- },
-					},
-				},
-				"saadparwaiz1/cmp_luasnip",
-
-				-- Adds other completion capabilities.
-				--  nvim-cmp does not ship with all sources by default. They are split
-				--  into multiple repos for maintenance purposes.
-				"hrsh7th/cmp-nvim-lsp",
-				"hrsh7th/cmp-path",
-			},
-			config = function()
-				-- See `:help cmp`
-				local cmp = require("cmp")
-				local luasnip = require("luasnip")
-				luasnip.config.setup({})
-
-				cmp.setup({
-					snippet = {
-						expand = function(args)
-							luasnip.lsp_expand(args.body)
-						end,
-					},
-					completion = { completeopt = "menu,menuone,noinsert" },
-
-					-- For an understanding of why these mappings were
-					-- chosen, you will need to read `:help ins-completion`
-					--
-					-- No, but seriously. Please read `:help ins-completion`, it is really good!
-					mapping = cmp.mapping.preset.insert({
-						-- Select the [n]ext item
-						["<C-n>"] = cmp.mapping.select_next_item(),
-						-- Select the [p]revious item
-						["<C-p>"] = cmp.mapping.select_prev_item(),
-
-						-- Scroll the documentation window [b]ack / [f]orward
-						["<C-b>"] = cmp.mapping.scroll_docs(-4),
-						["<C-f>"] = cmp.mapping.scroll_docs(4),
-
-						-- Accept ([y]es) the completion.
-						--  This will auto-import if your LSP supports it.
-						--  This will expand snippets if the LSP sent a snippet.
-						["<C-y>"] = cmp.mapping.confirm({ select = true }),
-
-						-- If you prefer more traditional completion keymaps,
-						-- you can uncomment the following lines
-						--['<CR>'] = cmp.mapping.confirm { select = true },
-						--['<Tab>'] = cmp.mapping.select_next_item(),
-						--['<S-Tab>'] = cmp.mapping.select_prev_item(),
-
-						-- Manually trigger a completion from nvim-cmp.
-						--  Generally you don't need this, because nvim-cmp will display
-						--  completions whenever it has completion options available.
-						["<C-Space>"] = cmp.mapping.complete({}),
-
-						-- Think of <c-l> as moving to the right of your snippet expansion.
-						--  So if you have a snippet that's like:
-						--  function $name($args)
-						--    $body
-						--  end
-						--
-						-- <c-l> will move you to the right of each of the expansion locations.
-						-- <c-h> is similar, except moving you backwards.
-						["<C-l>"] = cmp.mapping(function()
-							if luasnip.expand_or_locally_jumpable() then
-								luasnip.expand_or_jump()
-							end
-						end, { "i", "s" }),
-						["<C-h>"] = cmp.mapping(function()
-							if luasnip.locally_jumpable(-1) then
-								luasnip.jump(-1)
-							end
-						end, { "i", "s" }),
-
-						-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-						--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
-					}),
-					sources = {
-						{
-							name = "lazydev",
-							-- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-							group_index = 0,
-						},
-						{ name = "nvim_lsp" },
-						{ name = "luasnip" },
-						{ name = "path" },
-					},
-				})
-			end,
-		},
 		-- -------------
 		-- End
 		-- -------------
