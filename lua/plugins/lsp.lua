@@ -83,6 +83,9 @@ M.config = function()
 	local servers = {
 		clangd = {},
 		rust_analyzer = {},
+		pyright = { -- 添加pyright配置
+			cmd = { "pyright-langserver", "--stdio" },
+		},
 		verible = {},
 		cmake = {},
 		autotools_ls = {},
@@ -101,12 +104,6 @@ M.config = function()
 			},
 		},
 	}
-
-	local lspconfig = require("lspconfig")
-	-- 手动配置 pyright，使用本地全局 pyright 命令
-	lspconfig.pyright.setup({
-		cmd = { "pyright-langserver", "--stdio" },
-	})
 
 	-- Ensure the servers and tools above are installed
 	--
